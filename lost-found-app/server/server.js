@@ -1,12 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const itemRoutes = require("./routes/itemRoutes");
 
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use("/api/items", itemRoutes);
 
 // MongoDB Atlas Connection
 mongoose.connect("mongodb+srv://kavindya20010511_db_user:wyXdPnd8t47qSO4S@cluster0.wdrnr6n.mongodb.net/?appName=Cluster0")
