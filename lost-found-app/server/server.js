@@ -32,3 +32,7 @@ app.listen(PORT, () => {
 });
 
 //wyXdPnd8t47qSO4S
+
+//cd lost-found-app
+//cd server
+//node server.js
