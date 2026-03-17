@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
+import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import ReportLost from "./pages/ReportLost";
 import ReportFound from "./pages/ReportFound";
@@ -10,9 +11,9 @@ import ItemDetails from "./pages/ItemDetails";
 function App() {
   return (
     <Router>
-      <div>
-        <h1>Lost & Found Platform</h1>
+      <Navbar />
 
+      <div className="container">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/lost" element={<ReportLost />} />

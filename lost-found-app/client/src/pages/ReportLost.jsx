@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { createItem } from "../services/api";
+import "../App.css";
 
 function ReportLost() {
   const [form, setForm] = useState({
@@ -16,28 +17,54 @@ function ReportLost() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    createItem({ ...form, type: "lost" })
-      .then(() => alert("Lost item added"))
-      .catch(() => alert("Error"));
+    // simple validation
+    if (!form.title || !form.location || !form.contactName) {
+      alert("Please fill required fields");
+      return;
+    }
+
+    try {
+      await createItem({ ...form, type: "lost" });
+      alert("Lost item added successfully!");
+
+      // reset form
+      setForm({
+        title: "",
+        description: "",
+        location: "",
+        date: "",
+        contactName: "",
+        contactEmail: "",
+        contactPhone: ""
+      });
+
+    } catch (error) {
+      alert("Error adding item");
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Report Lost Item</h2>
+    <div className="container">
+      <form onSubmit={handleSubmit} className="form">
+        <h2 style={{ textAlign: "center" }}>Report Lost Item</h2>
 
-      <input name="title" placeholder="Title" onChange={handleChange} />
-      <input name="description" placeholder="Description" onChange={handleChange} />
-      <input name="location" placeholder="Location" onChange={handleChange} />
-      <input type="date" name="date" onChange={handleChange} />
-      <input name="contactName" placeholder="Name" onChange={handleChange} />
-      <input name="contactEmail" placeholder="Email" onChange={handleChange} />
-      <input name="contactPhone" placeholder="Phone" onChange={handleChange} />
+        <input name="title" value={form.title} placeholder="Title *" onChange={handleChange} />
+        <input name="description" value={form.description} placeholder="Description" onChange={handleChange} />
+        <input name="location" value={form.location} placeholder="Location *" onChange={handleChange} />
+        <input type="date" name="date" value={form.date} onChange={handleChange} />
 
-      <button type="submit">Submit</button>
-    </form>
+        <h4>Contact Details</h4>
+
+        <input name="contactName" value={form.contactName} placeholder="Your Name *" onChange={handleChange} />
+        <input name="contactEmail" value={form.contactEmail} placeholder="Email" onChange={handleChange} />
+        <input name="contactPhone" value={form.contactPhone} placeholder="Phone" onChange={handleChange} />
+
+        <button type="submit">Submit Lost Item</button>
+      </form>
+    </div>
   );
 }
 
