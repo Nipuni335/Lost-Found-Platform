@@ -1,35 +1,19 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const itemRoutes = require("./routes/itemRoutes");
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
-app.use("/api/items", itemRoutes);
 
-// MongoDB Atlas Connection
 mongoose.connect("mongodb+srv://kavindya20010511_db_user:wyXdPnd8t47qSO4S@cluster0.wdrnr6n.mongodb.net/?appName=Cluster0")
-.then(() => {
-    console.log("MongoDB Connected");
-})
-.catch((err) => {
-    console.log("MongoDB Connection Error:", err);
-});
+.then(()=>console.log("MongoDB Connected"));
 
-// Test Route
-app.get("/", (req, res) => {
-    res.send("Lost & Found API Running");
-});
+app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/items", require("./routes/itemRoutes"));
 
-// Server Port
-const PORT = 5000;
-
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+app.listen(5000, () => console.log("Server running"));
 
 //wyXdPnd8t47qSO4S
 

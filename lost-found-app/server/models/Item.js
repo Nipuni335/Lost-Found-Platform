@@ -1,46 +1,15 @@
 const mongoose = require("mongoose");
 
-const ItemSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true
-  },
-  description: {
-    type: String,
-    required: true
-  },
-  type: {
-    type: String,
-    enum: ["lost", "found"],
-    required: true
-  },
-  location: {
-    type: String,
-    required: true
-  },
-  date: {
-    type: Date,
-    required: true
-  },
-  image: {
-    type: String
-  },
-  contactName: {
-    type: String,
-    required: true
-  },
-  contactEmail: {
-    type: String,
-    required: true
-  },
-  contactPhone: {
-    type: String,
-    required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
+const itemSchema = new mongoose.Schema({
+  title: String,
+  description: String,
+  type: String,
+  location: String,
+  date: String,
+  image: String,
+  contactName: String,
+  contactEmail: String,
+  contactPhone: String,
 });
 
-module.exports = mongoose.model("Item", ItemSchema);
+module.exports = mongoose.model("Item", itemSchema);
