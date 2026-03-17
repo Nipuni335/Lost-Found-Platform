@@ -1,11 +1,21 @@
 import axios from "axios";
 
+// create axios instance
 const API = axios.create({
-  baseURL: "http://localhost:5000/api"
+  baseURL: "http://localhost:5000/api",
 });
 
-export const getItems = () => API.get("/items");
+// GET all items
+export const getItems = async () => {
+  return await API.get("/items");
+};
 
-export const createItem = (data) => API.post("/items", data);
+// CREATE new item
+export const createItem = async (data) => {
+  return await API.post("/items", data);
+};
 
-export const getItem = (id) => API.get(`/items/${id}`);
+// GET single item by ID
+export const getItem = async (id) => {
+  return await API.get(`/items/${id}`);
+};
