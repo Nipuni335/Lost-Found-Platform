@@ -1,26 +1,65 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 function Login() {
-  const [data, setData] = useState({});
+  const [form, setForm] = useState({
+    email: "",
+    password: ""
+  });
 
-  const login = async () => {
-    const res = await axios.post("http://localhost:5000/api/users/login", data);
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
 
-    localStorage.setItem("user", JSON.stringify(res.data));
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-    if(res.data.role === "admin"){
-      window.location = "/admin";
-    } else {
-      window.location = "/";
-    }
+    axios.post("http://localhost:5000/api/users/login", form)
+      .then((res) => {
+        localStorage.setItem("user", JSON.stringify(res.data));
+
+        if (res.data.role === "admin") {
+          window.location = "/admin";
+        } else {
+          window.location = "/home";
+        }
+      })
+      .catch(() => alert("Invalid credentials"));
   };
 
   return (
-    <div>
-      <input placeholder="Email" onChange={e=>setData({...data,email:e.target.value})}/>
-      <input placeholder="Password" onChange={e=>setData({...data,password:e.target.value})}/>
-      <button onClick={login}>Login</button>
+    <div className="container">
+      <form onSubmit={handleSubmit}>
+        <h2 style={{ textAlign: "center" }}>Login</h2>
+
+        <input
+          type="email"
+          name="email"
+          placeholder="Enter Email"
+          value={form.email}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Enter Password"
+          value={form.password}
+          onChange={handleChange}
+          required
+        />
+
+        <button type="submit">Login</button>
+
+        <p style={{ textAlign: "center", marginTop: "10px" }}>
+          Don’t have an account? <Link to="/register">Register</Link>
+        </p>
+      </form>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "react-router-dom";
 
 function Navbar() {
@@ -5,22 +6,36 @@ function Navbar() {
 
   const logout = () => {
     localStorage.removeItem("user");
-    window.location = "/login";
+    window.location.href = "/";
   };
 
   return (
     <div className="navbar">
-      <Link to="/">Home</Link>
-      <Link to="/lost">Report Lost</Link>
-      <Link to="/found">Report Found</Link>
-      <Link to="/myreports">My Reports</Link>
+      <div className="navbar-left">
+        <Link to="/home" className="portal-title">
+          <span className="home-icon">🏠</span>
+          <span>Lost &amp; Found Portal</span>
+        </Link>
+      </div>
 
-      {user && (
-        <>
-          <Link to="/profile">Profile</Link>
-          <button onClick={logout}>Logout</button>
-        </>
-      )}
+      <div className="navbar-right">
+  {user && (
+    <>
+     <Link to="/profile" className="profile-link">
+  <div className="user-badge">
+    <div className="user-avatar">
+      {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+    </div>
+    <span className="user-name">{user.name}</span>
+  </div>
+</Link>
+
+      <button onClick={logout} className="logout-btn">
+        Logout
+      </button>
+    </>
+  )}
+</div>
     </div>
   );
 }

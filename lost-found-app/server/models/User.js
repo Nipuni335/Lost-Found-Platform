@@ -5,7 +5,10 @@ const userSchema = new mongoose.Schema({
   email: String,
   phone: String,
   password: String,
-  role: { type: String, default: "student" } // admin or student
+  role: {
+    type: String,
+    default: "student" 
+  }
 });
 
 module.exports = mongoose.model("User", userSchema);
