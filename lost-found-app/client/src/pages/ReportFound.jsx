@@ -28,12 +28,15 @@ function ReportFound() {
     Object.keys(form).forEach((key) => {
       formData.append(key, form[key]);
     });
-    formData.append("type", "found");
+
+    formData.append("type", "found"); // 🔥 IMPORTANT
     if (image) formData.append("image", image);
 
     try {
       await createItem(formData);
       alert("Found item reported successfully");
+
+      // reset form
       setForm({
         title: "",
         description: "",
@@ -44,6 +47,7 @@ function ReportFound() {
         contactPhone: user?.phone || ""
       });
       setImage(null);
+
     } catch (error) {
       alert("Error submitting item");
     }
@@ -52,18 +56,74 @@ function ReportFound() {
   return (
     <>
       <Navbar />
-      <div className="container">
-        <h2>Report Found Item</h2>
+
+      <div className="form-container">
         <form className="item-form" onSubmit={handleSubmit}>
-          <input type="text" name="title" placeholder="Item title" value={form.title} onChange={handleChange} required />
-          <textarea name="description" placeholder="Description" value={form.description} onChange={handleChange} />
-          <input type="text" name="location" placeholder="Location found" value={form.location} onChange={handleChange} required />
-          <input type="date" name="date" value={form.date} onChange={handleChange} />
-          <input type="text" name="contactName" placeholder="Contact name" value={form.contactName} onChange={handleChange} required />
-          <input type="email" name="contactEmail" placeholder="Contact email" value={form.contactEmail} onChange={handleChange} required />
-          <input type="text" name="contactPhone" placeholder="Contact phone" value={form.contactPhone} onChange={handleChange} />
-          <input type="file" onChange={(e) => setImage(e.target.files[0])} />
-          <button type="submit">Submit Found Item</button>
+          <h2>Report Found Item</h2>
+
+          <input
+            type="text"
+            name="title"
+            placeholder="Item title"
+            value={form.title}
+            onChange={handleChange}
+            required
+          />
+
+          <textarea
+            name="description"
+            placeholder="Description"
+            value={form.description}
+            onChange={handleChange}
+          />
+
+          <input
+            type="text"
+            name="location"
+            placeholder="Location found"
+            value={form.location}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            type="date"
+            name="date"
+            value={form.date}
+            onChange={handleChange}
+          />
+
+          <input
+            type="text"
+            name="contactName"
+            value={form.contactName}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            type="email"
+            name="contactEmail"
+            value={form.contactEmail}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            type="text"
+            name="contactPhone"
+            value={form.contactPhone}
+            onChange={handleChange}
+          />
+
+          <input
+            type="file"
+            onChange={(e) => setImage(e.target.files[0])}
+          />
+
+          <button type="submit" className="nav-btn">
+            Submit Found Item
+          </button>
         </form>
       </div>
     </>

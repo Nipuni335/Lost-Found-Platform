@@ -37,6 +37,15 @@ const itemSchema = new mongoose.Schema(
     contactPhone: {
       type: String,
       default: ""
+    },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "removed"],
+      default: "pending"
+    },
+    isNotified: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true }

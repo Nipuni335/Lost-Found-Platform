@@ -38,7 +38,9 @@ function Register() {
         <input type="text" name="phone" placeholder="Phone" value={form.phone} onChange={handleChange} />
         <input type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} required />
 
-        <button type="submit">Register</button>
+        <button type="submit" className="auth-btn">
+          Register
+        </button>
 
         <p>
           Already have an account? <Link to="/">Login</Link>

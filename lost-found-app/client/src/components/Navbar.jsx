@@ -12,29 +12,46 @@ function Navbar() {
 
   return (
     <div className="navbar">
+
+      {/* 🔹 LEFT SIDE */}
       <div className="navbar-left">
-        <Link to={user?.role === "admin" ? "/admin-dashboard" : "/home"} className="portal-title">
-          Lost & Found Portal
+        <Link
+          to={user?.role === "admin" ? "/admin-dashboard" : "/home"}
+          className="portal-title"
+        >
+          🏠 Lost & Found Portal
         </Link>
       </div>
+      
 
+      {/* 🔹 RIGHT SIDE */}
       <div className="navbar-right">
-        {user?.role === "admin" ? (
+
+        {/* 👤 USER NAV */}
+        {user?.role === "user" && (
           <>
-            <Link to="/admin-dashboard">Dashboard</Link>
-            <button onClick={logout} className="logout-btn">Logout</button>
-          </>
-        ) : (
-          <>
-            <Link to="/home">Home</Link>
-            <Link to="/browse">Browse</Link>
-            <Link to="/report-lost">Report Lost</Link>
-            <Link to="/report-found">Report Found</Link>
-            <Link to="/my-reports">My Reports</Link>
-            <Link to="/profile">Profile</Link>
-            <button onClick={logout} className="logout-btn">Logout</button>
+            
           </>
         )}
+
+        {/* 👑 ADMIN NAV */}
+       
+
+        {/* 👤 PROFILE BADGE */}
+        <Link to="/profile" className="profile-link">
+          <div className="user-badge">
+            <div className="user-avatar">
+              {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+            </div>
+            <span className="user-name">{user?.name}</span>
+          </div>
+        </Link>
+
+        {/* 🚪 LOGOUT */}
+        <button onClick={logout} className="logout-btn">
+          Logout
+        </button>
+
       </div>
     </div>
   );

@@ -18,15 +18,8 @@ export const createItem = (formData) =>
     }
   });
 
-export const updateItemApi = (id, formData) =>
-  API.put(`/items/${id}`, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data"
-    }
-  });
-
-export const deleteItemApi = (id) => API.delete(`/items/${id}`);
-
-export const getAdminDashboard = () => API.get("/admin/dashboard");
+export const getAdminMatches = () => API.get("/admin/matches");
+export const informUserMatch = (data) => API.post("/admin/inform-user", data);
+export const removeAdminMatch = (data) => API.post("/admin/remove", data);
 
 export default API;

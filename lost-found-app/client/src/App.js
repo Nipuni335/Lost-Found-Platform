@@ -14,23 +14,56 @@ import EditProfile from "./pages/EditProfile";
 import MyReports from "./pages/MyReports";
 import AdminDashboard from "./pages/AdminDashboard";
 
+// 🔒 Protect normal users
 function ProtectedRoute({ children }) {
   const user = JSON.parse(localStorage.getItem("user"));
   return user ? children : <Navigate to="/" />;
 }
 
+// 🔒 Protect admin only
 function AdminRoute({ children }) {
   const user = JSON.parse(localStorage.getItem("user"));
   return user && user.role === "admin" ? children : <Navigate to="/home" />;
+}
+
+// 🔁 Redirect if already logged in
+function PublicRoute({ children }) {
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (user) {
+    return user.role === "admin"
+      ? <Navigate to="/admin-dashboard" />
+      : <Navigate to="/home" />;
+  }
+
+  return children;
 }
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
 
+        {/* 🔁 Login / Register (redirect if already logged) */}
+        <Route
+          path="/"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          }
+        />
+
+        {/* 👤 USER ROUTES */}
         <Route
           path="/home"
           element={
@@ -103,6 +136,7 @@ function App() {
           }
         />
 
+        {/* 👑 ADMIN ROUTE */}
         <Route
           path="/admin-dashboard"
           element={
@@ -111,6 +145,7 @@ function App() {
             </AdminRoute>
           }
         />
+
       </Routes>
     </BrowserRouter>
   );

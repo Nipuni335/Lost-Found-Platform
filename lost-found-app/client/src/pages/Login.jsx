@@ -65,7 +65,11 @@ function Login() {
           required
         />
 
-        <button type="submit">Login</button>
+        <button type="submit" className="auth-btn">
+          Login
+        </button>
+        
+        <br/>
 
         <p>
           Don’t have an account? <Link to="/register">Register</Link>
