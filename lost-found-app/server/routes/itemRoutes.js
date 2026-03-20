@@ -1,14 +1,18 @@
-const router = require("express").Router();
+const express = require("express");
+const router = express.Router();
+const upload = require("../middleware/upload");
 const {
   createItem,
   getItems,
-  getItem,
+  getItemById,
+  updateItem,
   deleteItem
 } = require("../controllers/itemController");
 
-router.post("/", createItem);
 router.get("/", getItems);
-router.get("/:id", getItem);
+router.get("/:id", getItemById);
+router.post("/", upload.single("image"), createItem);
+router.put("/:id", upload.single("image"), updateItem);
 router.delete("/:id", deleteItem);
 
 module.exports = router;

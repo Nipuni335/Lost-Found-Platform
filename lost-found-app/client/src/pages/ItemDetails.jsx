@@ -1,33 +1,50 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getItem } from "../services/api";
-import "../App.css";
+import Navbar from "../components/Navbar";
+import { getItemById } from "../services/api";
 
 function ItemDetails() {
   const { id } = useParams();
-  const [item, setItem] = useState({});
+  const [item, setItem] = useState(null);
 
   useEffect(() => {
-    getItem(id).then(res => setItem(res.data));
+    fetchItem();
   }, [id]);
 
+  const fetchItem = async () => {
+    try {
+      const res = await getItemById(id);
+      setItem(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  if (!item) return <div>Loading...</div>;
+
   return (
-    <div className="container">
-      <div className="card">
-        <span className={`badge ${item.type}`}>
-          {item.type}
-        </span>
-
+    <>
+      <Navbar />
+      <div className="container">
         <h2>{item.title}</h2>
-        <p>{item.description}</p>
-        <p><b>Location:</b> {item.location}</p>
 
-        <h4>Contact Info</h4>
-        <p>{item.contactName}</p>
-        <p>{item.contactEmail}</p>
-        <p>{item.contactPhone}</p>
+        {item.image && (
+          <img
+            src={`http://localhost:5000/${item.image}`}
+            alt={item.title}
+            style={{ width: "300px", borderRadius: "10px", marginBottom: "20px" }}
+          />
+        )}
+
+        <p><strong>Description:</strong> {item.description}</p>
+        <p><strong>Type:</strong> {item.type}</p>
+        <p><strong>Location:</strong> {item.location}</p>
+        <p><strong>Date:</strong> {item.date ? new Date(item.date).toLocaleDateString() : "-"}</p>
+        <p><strong>Contact Name:</strong> {item.contactName}</p>
+        <p><strong>Email:</strong> {item.contactEmail}</p>
+        <p><strong>Phone:</strong> {item.contactPhone}</p>
       </div>
-    </div>
+    </>
   );
 }
 

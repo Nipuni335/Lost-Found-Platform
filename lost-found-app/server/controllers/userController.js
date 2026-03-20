@@ -1,11 +1,15 @@
 const User = require("../models/User");
 
-// ------------------- REGISTER -------------------
+// register user
 exports.register = async (req, res) => {
-  const { name, email, phone, password } = req.body;
-
   try {
-    const existingUser = await User.findOne({ email });
+    const { name, email, phone, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ msg: "Name, email and password are required" });
+    }
+
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
 
     if (existingUser) {
       return res.status(400).json({ msg: "User already exists" });
@@ -13,29 +17,35 @@ exports.register = async (req, res) => {
 
     const newUser = new User({
       name,
-      email,
+      email: email.toLowerCase(),
       phone,
       password,
-      role: "student"
+      role: "user"
     });
 
-    await newUser.save();
+    const savedUser = await newUser.save();
 
-    res.json({
-      msg: "Registration successful",
-      user: newUser
+    res.status(201).json({
+      _id: savedUser._id,
+      name: savedUser.name,
+      email: savedUser.email,
+      phone: savedUser.phone,
+      role: savedUser.role
     });
   } catch (err) {
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
 
-// ------------------- LOGIN -------------------
+// login for both user and admin
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
-
   try {
-    const user = await User.findOne({ email, password });
+    const { email, password } = req.body;
+
+    const user = await User.findOne({
+      email: email.toLowerCase(),
+      password
+    });
 
     if (!user) {
       return res.status(400).json({ msg: "Invalid credentials" });
@@ -49,59 +59,21 @@ exports.login = async (req, res) => {
       role: user.role
     });
   } catch (err) {
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
 
-// ------------------- GET ALL USERS -------------------
-exports.getUsers = async (req, res) => {
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ msg: "Error fetching users" });
-  }
-};
-
-// ------------------- CREATE ADMIN -------------------
-exports.createAdmin = async (req, res) => {
-  try {
-    const existingAdmin = await User.findOne({ email: "admin@gmail.com" });
-
-    if (existingAdmin) {
-      return res.json({ msg: "Admin already exists" });
-    }
-
-    const admin = new User({
-      name: "Admin",
-      email: "admin@gmail.com",
-      phone: "0771234567",
-      password: "123456",
-      role: "admin"
-    });
-
-    await admin.save();
-
-    res.json({
-      msg: "Admin created successfully",
-      admin
-    });
-  } catch (err) {
-    res.status(500).json({ msg: "Error creating admin" });
-  }
-};
-
-// ------------------- UPDATE PROFILE -------------------
+// update profile
 exports.updateProfile = async (req, res) => {
-  const { id } = req.params;
-  const { name, email, phone } = req.body;
-
   try {
+    const { id } = req.params;
+    const { name, email, phone } = req.body;
+
     const updatedUser = await User.findByIdAndUpdate(
       id,
       {
         name,
-        email,
+        email: email?.toLowerCase(),
         phone
       },
       { new: true }
@@ -113,6 +85,6 @@ exports.updateProfile = async (req, res) => {
 
     res.json(updatedUser);
   } catch (err) {
-    res.status(500).json({ msg: "Error updating profile" });
+    res.status(500).json({ msg: "Server error", error: err.message });
   }
 };

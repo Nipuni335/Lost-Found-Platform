@@ -1,12 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const { getAdminStats } = require("../controllers/adminController");
 
-const {
-  getAdminItems,
-  getMatchedItems
-} = require("../controllers/adminController");
-
-router.get("/items", getAdminItems);
-router.get("/match", getMatchedItems);
+router.get("/dashboard", getAdminStats);
 
 module.exports = router;

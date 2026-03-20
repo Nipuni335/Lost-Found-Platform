@@ -1,45 +1,56 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { loginUser } from "../services/api";
 
 function Login() {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     email: "",
     password: ""
   });
 
+  useEffect(() => {
+    const savedUser = JSON.parse(localStorage.getItem("user"));
+    if (savedUser) {
+      if (savedUser.role === "admin") {
+        navigate("/admin-dashboard");
+      } else {
+        navigate("/home");
+      }
+    }
+  }, [navigate]);
+
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    axios.post("http://localhost:5000/api/users/login", form)
-      .then((res) => {
-        localStorage.setItem("user", JSON.stringify(res.data));
+    try {
+      const res = await loginUser(form);
+      localStorage.setItem("user", JSON.stringify(res.data));
 
-        if (res.data.role === "admin") {
-          window.location = "/admin";
-        } else {
-          window.location = "/home";
-        }
-      })
-      .catch(() => alert("Invalid credentials"));
+      if (res.data.role === "admin") {
+        navigate("/admin-dashboard");
+      } else {
+        navigate("/home");
+      }
+    } catch (error) {
+      alert(error.response?.data?.msg || "Login failed");
+    }
   };
 
   return (
-    <div className="container">
-      <form onSubmit={handleSubmit}>
-        <h2 style={{ textAlign: "center" }}>Login</h2>
+    <div className="auth-container">
+      <form className="auth-form" onSubmit={handleSubmit}>
+        <h2>Login</h2>
 
         <input
           type="email"
           name="email"
-          placeholder="Enter Email"
+          placeholder="Enter email"
           value={form.email}
           onChange={handleChange}
           required
@@ -48,7 +59,7 @@ function Login() {
         <input
           type="password"
           name="password"
-          placeholder="Enter Password"
+          placeholder="Enter password"
           value={form.password}
           onChange={handleChange}
           required
@@ -56,7 +67,7 @@ function Login() {
 
         <button type="submit">Login</button>
 
-        <p style={{ textAlign: "center", marginTop: "10px" }}>
+        <p>
           Don’t have an account? <Link to="/register">Register</Link>
         </p>
       </form>

@@ -1,46 +1,36 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import "../App.css";
+import React, { useEffect, useState } from "react";
+import Navbar from "../components/Navbar";
+import ItemCard from "../components/ItemCard";
+import { getItems } from "../services/api";
 
 function Home() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  const fetchItems = async () => {
+    try {
+      const res = await getItems();
+      setItems(res.data.slice(0, 6));
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
-    <div className="home-wrapper">
-      <div className="home-page">
-        <div className="home-card">
-          <h1 className="home-title">Welcome to Lost &amp; Found Portal</h1>
-          <p className="home-subtitle">Choose an action below</p>
-
-          <div className="home-actions">
-            <Link to="/lost" className="home-action-card lost-card">
-              <div className="home-action-icon">🔍</div>
-              <div className="home-action-text">Report Lost Item</div>
-            </Link>
-
-            <Link to="/found" className="home-action-card found-card">
-              <div className="home-action-icon">🤝</div>
-              <div className="home-action-text">Report Found Item</div>
-            </Link>
-
-            <Link to="/myreports" className="home-action-card reports-card">
-              <div className="home-action-icon">📄</div>
-              <div className="home-action-text">View My Reports</div>
-            </Link>
-          </div>
-
-          {user && (
-            <div className="home-user-text">
-              Logged in as: <strong>{user.name}</strong>
-            </div>
-          )}
+    <>
+      <Navbar />
+      <div className="container">
+        <h2>Latest Lost & Found Items</h2>
+        <div className="card-grid">
+          {items.map((item) => (
+            <ItemCard key={item._id} item={item} />
+          ))}
         </div>
       </div>
-
-      <footer className="main-footer">
-        © 2026 Lost &amp; Found System
-      </footer>
-    </div>
+    </>
   );
 }
 

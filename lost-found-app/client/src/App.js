@@ -1,56 +1,118 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import "./App.css";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
+import BrowseItems from "./pages/BrowseItems";
 import ReportLost from "./pages/ReportLost";
 import ReportFound from "./pages/ReportFound";
-import MyReports from "./pages/MyReports";
+import ItemDetails from "./pages/ItemDetails";
 import Profile from "./pages/Profile";
+import EditProfile from "./pages/EditProfile";
+import MyReports from "./pages/MyReports";
 import AdminDashboard from "./pages/AdminDashboard";
-import Navbar from "./components/Navbar";
+
+function ProtectedRoute({ children }) {
+  const user = JSON.parse(localStorage.getItem("user"));
+  return user ? children : <Navigate to="/" />;
+}
+
+function AdminRoute({ children }) {
+  const user = JSON.parse(localStorage.getItem("user"));
+  return user && user.role === "admin" ? children : <Navigate to="/home" />;
+}
 
 function App() {
-  const user = JSON.parse(localStorage.getItem("user"));
-
   return (
-    <Router>
-      {user && user.role !== "admin" && <Navbar />}
-
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
         <Route
           path="/home"
-          element={user && user.role === "student" ? <Home /> : <Navigate to="/" />}
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
         />
 
         <Route
-          path="/lost"
-          element={user && user.role === "student" ? <ReportLost /> : <Navigate to="/" />}
+          path="/browse"
+          element={
+            <ProtectedRoute>
+              <BrowseItems />
+            </ProtectedRoute>
+          }
         />
 
         <Route
-          path="/found"
-          element={user && user.role === "student" ? <ReportFound /> : <Navigate to="/" />}
+          path="/report-lost"
+          element={
+            <ProtectedRoute>
+              <ReportLost />
+            </ProtectedRoute>
+          }
         />
 
         <Route
-          path="/myreports"
-          element={user && user.role === "student" ? <MyReports /> : <Navigate to="/" />}
+          path="/report-found"
+          element={
+            <ProtectedRoute>
+              <ReportFound />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/item/:id"
+          element={
+            <ProtectedRoute>
+              <ItemDetails />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/profile"
-          element={user && user.role === "student" ? <Profile /> : <Navigate to="/" />}
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
         />
 
         <Route
-          path="/admin"
-          element={user && user.role === "admin" ? <AdminDashboard /> : <Navigate to="/" />}
+          path="/edit-profile"
+          element={
+            <ProtectedRoute>
+              <EditProfile />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/my-reports"
+          element={
+            <ProtectedRoute>
+              <MyReports />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin-dashboard"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
         />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 
