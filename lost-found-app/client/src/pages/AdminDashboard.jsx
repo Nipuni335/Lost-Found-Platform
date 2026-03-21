@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Navbar from "../components/Navbar";
 import {
   getAdminMatches,
   informUserMatch,
@@ -38,196 +39,263 @@ function AdminDashboard() {
 
   const formatDate = (date) => {
     if (!date) return "-";
-    return new Date(date).toISOString().split("T")[0];
+    return new Date(date).toLocaleDateString();
   };
 
-  const handleInform = async (lostItemId) => {
-  try {
-    await informUserMatch({ lostItemId });
-    alert("User informed successfully");
-    fetchAdminData();
-  } catch (error) {
-    console.error(error);
-    alert(error.response?.data?.msg || "Error informing user");
-  }
-};
-
-  const handleRemove = async (lostItemId, foundItemId) => {
+  const handleInformUser = async (lostItemId, foundItemId) => {
     try {
-      await removeAdminMatch({ lostItemId, foundItemId });
-      alert("Removed from current review");
+      await informUserMatch({ lostItemId, foundItemId });
+      alert("User informed successfully");
       fetchAdminData();
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.msg || "Error removing match");
+      alert("Error informing user");
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("user");
-    window.location = "/";
+  const handleRemoveMatch = async (lostItemId, foundItemId) => {
+    try {
+      await removeAdminMatch({ lostItemId, foundItemId });
+      alert("Match removed successfully");
+      fetchAdminData();
+    } catch (error) {
+      console.error(error);
+      alert("Error removing match");
+    }
   };
 
+  const handleRemoveSingleItem = async (item) => {
+    try {
+      await removeAdminMatch({
+        lostItemId: item._id,
+        foundItemId: item._id
+      });
+      alert("Item removed successfully");
+      fetchAdminData();
+    } catch (error) {
+      console.error(error);
+      alert("Error removing item");
+    }
+  };
+
+  const totalItems = matched.length + unmatched.length;
+  const totalMatchedPairs = matched.length;
+  const totalUnmatchedItems = unmatched.length;
+
   if (loading) {
-    return <h2 style={{ textAlign: "center", marginTop: "40px" }}>Loading...</h2>;
+    return (
+      <div className="admin-page">
+        <Navbar />
+        <div className="admin-dashboard-container">
+          <h2 className="dashboard-main-title">Admin Dashboard</h2>
+          <p className="dashboard-empty-text">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="admin-page">
-      <div className="admin-topbar">
-        <h2>Admin Panel</h2>
-        <button className="admin-logout-btn" onClick={logout}>
-          Logout
-        </button>
-      </div>
+      <Navbar />
 
-      <div className="admin-content">
-        <h1 className="admin-section-title">Matched Items Awaiting Approval</h1>
+      <div className="admin-dashboard-container">
+        <h2 className="dashboard-main-title">Admin Dashboard</h2>
 
-        <div className="admin-table-wrapper">
-          <table className="admin-dashboard-table">
-            <thead>
-              <tr>
-                <th>Lost Image</th>
-                <th>Found Image</th>
-                <th>Category</th>
-                <th>Location</th>
-                <th>Match Score</th>
-                <th>Student</th>
-                <th>Email</th>
-                <th>Date Found</th>
-                <th>Action</th>
-              </tr>
-            </thead>
+        <div className="admin-summary-grid">
+          <div className="admin-summary-card">
+            <h3>Total Review Items</h3>
+            <p>{totalItems}</p>
+          </div>
 
-            <tbody>
-              {matched.length > 0 ? (
-                matched.map((pair, index) => (
-                  <tr key={index}>
-                    <td>
-                      {pair.lostItem.image ? (
-                        <a
-                          href={`http://localhost:5000/${pair.lostItem.image}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          View
-                        </a>
-                      ) : (
-                        "No Image"
-                      )}
-                    </td>
+          <div className="admin-summary-card">
+            <h3>Matched Pairs</h3>
+            <p>{totalMatchedPairs}</p>
+          </div>
 
-                    <td>
-                      {pair.foundItem.image ? (
-                        <a
-                          href={`http://localhost:5000/${pair.foundItem.image}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          View
-                        </a>
-                      ) : (
-                        "No Image"
-                      )}
-                    </td>
-
-                    <td>{pair.lostItem.title}</td>
-                    <td>{pair.lostItem.location}</td>
-                    <td>
-                      <span className="match-score-badge">{pair.matchScore}</span>
-                    </td>
-                    <td>{pair.lostItem.contactName}</td>
-                    <td>{pair.lostItem.contactEmail}</td>
-                    <td>{formatDate(pair.foundItem.date)}</td>
-                    <td>
-                      <div className="action-btn-group">
-                        <button
-  className="inform-btn"
-  onClick={() => handleInform(pair.lostItem._id)}
->
-  📧 Inform User
-</button>
-
-                        <button
-                          className="remove-btn"
-                          onClick={() =>
-                            handleRemove(pair.lostItem._id, pair.foundItem._id)
-                          }
-                        >
-                          ❌ Remove
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="9" style={{ textAlign: "center" }}>
-                    No matched items found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+          <div className="admin-summary-card">
+            <h3>Unmatched Items</h3>
+            <p>{totalUnmatchedItems}</p>
+          </div>
         </div>
 
-        <h1 className="admin-section-title">Unmatched Items (Needs Review)</h1>
+        <div className="admin-panel-card">
+          <h3 className="dashboard-section-title">Matched Items</h3>
 
-        <div className="admin-table-wrapper">
-          <table className="admin-dashboard-table">
-            <thead>
-              <tr>
-                <th>Type</th>
-                <th>Image</th>
-                <th>Category</th>
-                <th>Location</th>
-                <th>Date</th>
-                <th>Reported By</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {unmatched.length > 0 ? (
-                unmatched.map((item) => (
-                  <tr key={item._id}>
-                    <td>
-                      <span className={item.type === "lost" ? "lost-badge" : "found-badge"}>
-                        {item.type}
-                      </span>
-                    </td>
-                    <td>
-                      {item.image ? (
-                        <a
-                          href={`http://localhost:5000/${item.image}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          View
-                        </a>
-                      ) : (
-                        "No Image"
-                      )}
-                    </td>
-                    <td>{item.title}</td>
-                    <td>{item.location}</td>
-                    <td>{formatDate(item.date)}</td>
-                    <td>
-                      {item.contactName}
-                      <br />
-                      {item.contactEmail}
-                    </td>
+          {matched.length === 0 ? (
+            <p className="dashboard-empty-text">No matched items found.</p>
+          ) : (
+            <div className="dashboard-table-wrapper">
+              <table className="dashboard-table">
+                <thead>
+                  <tr>
+                    <th>Lost Image</th>
+                    <th>Found Image</th>
+                    <th>Category</th>
+                    <th>Location</th>
+                    <th>Match Score</th>
+                    <th>Student</th>
+                    <th>Email</th>
+                    <th>Date Found</th>
+                    <th>Action</th>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" style={{ textAlign: "center" }}>
-                    No unmatched items
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  {matched.map((match, index) => (
+                    <tr key={index}>
+                      <td>
+                        {match.lostItem.image ? (
+                          <a
+                            href={`http://localhost:5000/${match.lostItem.image}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="view-link"
+                          >
+                            View
+                          </a>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+
+                      <td>
+                        {match.foundItem.image ? (
+                          <a
+                            href={`http://localhost:5000/${match.foundItem.image}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="view-link"
+                          >
+                            View
+                          </a>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+
+                      <td>{match.lostItem.title}</td>
+
+                      <td>{match.foundItem.location}</td>
+
+                      <td>
+                        <span className="score-badge">{match.matchScore}</span>
+                      </td>
+
+                      <td>{match.lostItem.contactName}</td>
+
+                      <td>{match.lostItem.contactEmail}</td>
+
+                      <td>{formatDate(match.foundItem.date)}</td>
+
+                      <td>
+                        <div className="dashboard-action-group">
+                          <button
+                            className="dashboard-btn inform-user-btn"
+                            onClick={() =>
+                              handleInformUser(
+                                match.lostItem._id,
+                                match.foundItem._id
+                              )
+                            }
+                          >
+                            Inform User
+                          </button>
+
+                          <button
+                            className="dashboard-btn remove-item-btn"
+                            onClick={() =>
+                              handleRemoveMatch(
+                                match.lostItem._id,
+                                match.foundItem._id
+                              )
+                            }
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div className="admin-panel-card">
+          <h3 className="dashboard-section-title">
+            Unmatched Items (Needs Review)
+          </h3>
+
+          {unmatched.length === 0 ? (
+            <p className="dashboard-empty-text">No unmatched items found.</p>
+          ) : (
+            <div className="dashboard-table-wrapper">
+              <table className="dashboard-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Image</th>
+                    <th>Category</th>
+                    <th>Location</th>
+                    <th>Date</th>
+                    <th>Reported By</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {unmatched.map((item) => (
+                    <tr key={item._id}>
+                      <td>
+                        {item.type === "lost" ? (
+                          <span className="badge-lost">Lost</span>
+                        ) : (
+                          <span className="badge-found">Found</span>
+                        )}
+                      </td>
+
+                      <td>
+                        {item.image ? (
+                          <a
+                            href={`http://localhost:5000/${item.image}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="view-link"
+                          >
+                            View
+                          </a>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+
+                      <td>{item.title}</td>
+
+                      <td>{item.location}</td>
+
+                      <td>{formatDate(item.date)}</td>
+
+                      <td>
+                        <strong>{item.contactName}</strong>
+                        <br />
+                        {item.contactEmail}
+                      </td>
+
+                      <td>
+                        <div className="dashboard-action-group">
+                          <button
+                            className="dashboard-btn remove-item-btn"
+                            onClick={() => handleRemoveSingleItem(item)}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

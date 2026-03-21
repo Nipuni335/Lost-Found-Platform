@@ -56,10 +56,7 @@ exports.getAdminMatches = async (req, res) => {
       ...foundItems.filter((item) => !usedFoundIds.has(String(item._id)))
     ];
 
-    res.json({
-      matched,
-      unmatched
-    });
+    res.json({ matched, unmatched });
   } catch (error) {
     res.status(500).json({
       msg: "Error loading admin data",
@@ -68,16 +65,17 @@ exports.getAdminMatches = async (req, res) => {
   }
 };
 
-// SEND EMAIL TO LOST ITEM OWNER
+// INFORM USER
 exports.informUserMatch = async (req, res) => {
   try {
-    const { lostItemId } = req.body;
+    const { lostItemId, foundItemId } = req.body;
 
     if (!lostItemId) {
       return res.status(400).json({ msg: "Lost item ID is required" });
     }
 
     const lostItem = await Item.findById(lostItemId);
+    const foundItem = foundItemId ? await Item.findById(foundItemId) : null;
 
     if (!lostItem) {
       return res.status(404).json({ msg: "Lost item not found" });
@@ -85,10 +83,14 @@ exports.informUserMatch = async (req, res) => {
 
     lostItem.isNotified = true;
     lostItem.status = "approved";
-
     await lostItem.save();
 
-    res.json({ msg: "User informed successfully through system notification" });
+    if (foundItem) {
+      foundItem.status = "approved";
+      await foundItem.save();
+    }
+
+    res.json({ msg: "User informed successfully" });
   } catch (error) {
     res.status(500).json({
       msg: "Error informing user",
@@ -97,27 +99,46 @@ exports.informUserMatch = async (req, res) => {
   }
 };
 
-// REMOVE MATCH FROM CURRENT REVIEW
+// REMOVE MATCH OR SINGLE ITEM
 exports.removeMatch = async (req, res) => {
   try {
     const { lostItemId, foundItemId } = req.body;
 
-    if (!lostItemId || !foundItemId) {
-      return res.status(400).json({ msg: "Both item IDs are required" });
+    if (!lostItemId && !foundItemId) {
+      return res.status(400).json({ msg: "At least one item ID is required" });
     }
 
-    const lostItem = await Item.findById(lostItemId);
-    const foundItem = await Item.findById(foundItemId);
+    if (lostItemId && foundItemId && lostItemId !== foundItemId) {
+      const lostItem = await Item.findById(lostItemId);
+      const foundItem = await Item.findById(foundItemId);
 
-    if (!lostItem || !foundItem) {
-      return res.status(404).json({ msg: "Items not found" });
+      if (!lostItem || !foundItem) {
+        return res.status(404).json({ msg: "Items not found" });
+      }
+
+      lostItem.status = "removed";
+      foundItem.status = "removed";
+
+      await lostItem.save();
+      await foundItem.save();
+
+      return res.json({ msg: "Match removed successfully" });
     }
 
-    // You can later improve this logic if needed
-    res.json({ msg: "Match removed from current review" });
+    const itemId = lostItemId || foundItemId;
+    const item = await Item.findById(itemId);
+
+    if (!item) {
+      return res.status(404).json({ msg: "Item not found" });
+    }
+
+    item.status = "removed";
+    await item.save();
+
+    res.json({ msg: "Item removed successfully" });
   } catch (error) {
     res.status(500).json({
-      msg: "Error removing match",
+      msg: "Error removing item",
       error: error.message
     });
   }
