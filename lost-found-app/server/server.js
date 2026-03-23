@@ -30,3 +30,7 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 //cd lost-found-app
 //cd server
 //node server.js
+
+//service id- service_wph34q9
+// template id- template_ei90yn5
+//public key- 1ramLCw_fn8cOplLJ
